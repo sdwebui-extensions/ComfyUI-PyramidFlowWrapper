@@ -17,6 +17,8 @@ script_directory = os.path.dirname(os.path.abspath(__file__))
 
 if not "pyramidflow" in folder_paths.folder_names_and_paths:
     folder_paths.add_model_folder_path("pyramidflow", os.path.join(folder_paths.models_dir, "pyramidflow"))
+if os.path.exists(folder_paths.cache_dir):
+    folder_paths.add_model_folder_path("pyramidflow", os.path.join(folder_paths.cache_dir, "pyramidflow"))
 
 from .pyramid_dit.mmdit_modules import PyramidDiffusionMMDiT
 from .pyramid_dit.flux_modules import PyramidFluxTransformer
@@ -148,13 +150,12 @@ class PyramidFlowModelLoader:
         dtype = {"fp8_e4m3fn": torch.float8_e4m3fn, "fp8_e4m3fn_fast": torch.float8_e4m3fn, "bf16": torch.bfloat16, "fp16": torch.float16, "fp32": torch.float32}[precision]
 
         transformer_sd = load_torch_file(model_path)
+        model_name = "pyramid_flux"
 
         for key in transformer_sd:
             if key.startswith("pos_embed."):
                 model_name = "pyramid_mmdit"
-                continue
-        else:
-            model_name = "pyramid_flux"
+                break
         
         model_configs = {
             "pyramid_flux": {
